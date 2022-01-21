@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import App from './App.svelte';
 import { syncable, setPrefix } from '../index';
 import { get } from 'svelte/store';

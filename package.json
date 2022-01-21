@@ -22,8 +22,8 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
-    "babel-jest": "^24.8.0",
-    "jest": "^24.8.0",
+    "babel-jest": "^27.4.6",
+    "jest": "^27.4.7",
     "jest-localstorage-mock": "^2.4.0",
     "jest-transform-svelte": "^2.0.2"
   },
@@ -31,7 +31,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "svelte": "^3.6.0"
+    "svelte": "^3.0.0"
   },
   "repository": {
     "type": "git",
