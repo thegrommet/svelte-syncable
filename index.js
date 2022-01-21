@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
-let prefix = 'svelteStore';
+let prefix = "svelteStore";
 
 const get = (key) => {
   try {
@@ -28,7 +28,7 @@ const set = (key, value) => {
 };
 
 const syncValue = (key, observable) => {
-  observable.subscribe(data => {
+  observable.subscribe((data) => {
     set(key, data);
   });
 
