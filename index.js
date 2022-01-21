@@ -3,17 +3,28 @@ import { writable } from 'svelte/store';
 let prefix = 'svelteStore';
 
 const get = (key) => {
-  if (typeof window === 'undefined' || !window.localStorage) return;
-  const value = localStorage.getItem(key);
-  return value === undefined
-    ? ""
-    : JSON.parse(value);
+  try {
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return undefined;
+    }
+    const value = localStorage.getItem(key);
+    return value === undefined ? "" : JSON.parse(value);
+  } catch (e) {
+    if (e.name == "SecurityError") return undefined;
+    throw e;
+  }
 };
 
 const set = (key, value) => {
-  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return undefined;
+    }
 
-  localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    if (e.name != "SecurityError") throw e;
+  }
 };
 
 const syncValue = (key, observable) => {
