@@ -1,79 +1,56 @@
-/**
- * @jest-environment jsdom
- */
-
-import App from './App.svelte';
-import { syncable, setPrefix } from '../index';
-import { get } from 'svelte/store';
+import { syncable, setPrefix } from "../index";
+import { get } from "svelte/store";
+import { vi } from "vitest";
 
 let app = null;
 
-
-describe('syncable', () => {
+describe("syncable", () => {
   beforeEach(() => {
-    setPrefix('svelteStore');
+    setPrefix("svelteStore");
     localStorage.clear();
   });
-  
-  test('App is constructed', () => {
-    app = new App({ target: document.body });
-    expect(app).toBeTruthy();
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  test('syncable stores in localStorage', () => {
-    syncable('count', 0);
+  test("syncable stores in localStorage", () => {
+    const spy = vi.spyOn(localStorage, "setItem");
 
-    expect(localStorage.setItem).toHaveBeenLastCalledWith('svelteStore-count', "0");
+    syncable("count", 0);
+
+    expect(spy).toHaveBeenLastCalledWith("svelteStore-count", "0");
   });
 
-  test('syncable has a new prefix', () => {
-    setPrefix('foobar');
-    syncable('count', 0);
+  test("syncable has a new prefix", () => {
+    const spy = vi.spyOn(localStorage, "setItem");
 
-    expect(localStorage.setItem).toHaveBeenLastCalledWith('foobar-count', "0");
+    setPrefix("foobar");
+    syncable("count", 0);
+
+    expect(spy).toHaveBeenLastCalledWith("foobar-count", "0");
   });
 
-  test('syncable returns a SvelteObservable', () => {
-    const count = syncable('count', 0);
+  test("syncable returns a SvelteObservable", () => {
+    const count = syncable("count", 0);
 
     expect(count.subscribe).toBeInstanceOf(Function);
     expect(count.set).toBeInstanceOf(Function);
     expect(count.update).toBeInstanceOf(Function);
   });
 
-  test('stores is synced on component actions', () => {
-    let app = new App({ target: document.body });
+  test("syncable is hydrated from the stored value", () => {
+    localStorage.setItem("svelteStore-count", 42);
 
-    const count = document.querySelector('#count');
-    const increment = document.body.querySelector('#inc');
-    const decrement = document.body.querySelector('#dec');
-
-    increment.click();
-    expect(localStorage.getItem('svelteStore-count')).toBe('1');
-    increment.click();
-    expect(localStorage.getItem('svelteStore-count')).toBe('2');
-
-    setTimeout(() => expect(count.innerText).toBe('2'));
-    
-    decrement.click();
-    expect(localStorage.getItem('svelteStore-count')).toBe('1');
-    decrement.click();
-    expect(localStorage.getItem('svelteStore-count')).toBe('0');
-    setTimeout(() => expect(count.innerText).toBe('0'));
-  });
-
-  test('syncable is hydrated from the stored value', () => {
-    localStorage.setItem('svelteStore-count', 42);
-    
-    const countObservable = syncable('count', 0);
+    const countObservable = syncable("count", 0);
 
     expect(get(countObservable)).toBe(42);
   });
 
-  test('syncable is not hydrated from the stored value', () => {
-    localStorage.setItem('svelteStore-count', 42);
+  test("syncable is not hydrated from the stored value", () => {
+    localStorage.setItem("svelteStore-count", 42);
 
-    const countObservable = syncable('count', 0, false);
+    const countObservable = syncable("count", 0, false);
 
     expect(get(countObservable)).toBe(0);
   });
