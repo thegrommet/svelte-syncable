@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "extendedDiagnostics": true,
+    "incremental": true,
+    "importHelpers": true,
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "noImplicitAny": false,
+    "outDir": "resources/typings/",
+    "target": "ES2018",
+    "rootDir": ".",
+    "sourceMap": true,
+    "strict": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable", "ESNext.Intl"]
+  },
+  "typeAcquisition": {
+    "enable": true
+  },
+  "compileOnSave": true,
+  "include": ["*.js"]
+}
