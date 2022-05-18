@@ -16,6 +16,7 @@ const get = (store, key) => {
     return value == null ? "" : JSON.parse(value);
   } catch (e) {
     if (e instanceof Error && e.name == "SecurityError") return undefined;
+    if (e instanceof Error && e.name == "SyntaxError") return undefined;
     throw e;
   }
 };
@@ -46,20 +47,20 @@ const set = (store, key, value) => {
  * @param {T} observable
  * @returns {T}
  */
-function syncValue (store, key, observable) {
+function syncValue(store, key, observable) {
   observable.subscribe((data) => {
     set(store, key, data);
   });
 
   return observable;
-};
+}
 
 /**
  * @param {string} prefixName
  */
 export function setPrefix(prefixName) {
   prefix = prefixName;
-};
+}
 
 /**
  * @template T
