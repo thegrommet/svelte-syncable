@@ -2,50 +2,103 @@ import { writable } from "svelte/store";
 
 let prefix = "svelteStore";
 
-const get = (key) => {
+/**
+ * @param {Storage} store
+ * @param {string} key
+ * @return {any}
+ */
+const get = (store, key) => {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
       return undefined;
     }
-    const value = localStorage.getItem(key);
-    return value === undefined ? "" : JSON.parse(value);
+    const value = store.getItem(key);
+    return value == null ? "" : JSON.parse(value);
   } catch (e) {
-    if (e.name == "SecurityError") return undefined;
+    if (e instanceof Error && e.name == "SecurityError") return undefined;
     throw e;
   }
 };
 
-const set = (key, value) => {
+/**
+ * @template T
+ * @param {Storage} store
+ * @param {string} key
+ * @param {T} value
+ * @returns {void}
+ */
+const set = (store, key, value) => {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
-      return undefined;
+      return;
     }
 
-    localStorage.setItem(key, JSON.stringify(value));
+    store.setItem(key, JSON.stringify(value));
   } catch (e) {
-    if (e.name != "SecurityError") throw e;
+    if (!(e instanceof Error) || e.name != "SecurityError") throw e;
   }
 };
 
-const syncValue = (key, observable) => {
+/**
+ * @template {import('svelte/store').Writable} T
+ * @param {Storage} store
+ * @param {string} key
+ * @param {T} observable
+ * @returns {T}
+ */
+function syncValue (store, key, observable) {
   observable.subscribe((data) => {
-    set(key, data);
+    set(store, key, data);
   });
 
   return observable;
 };
 
-export const setPrefix = (prefixName) => {
+/**
+ * @param {string} prefixName
+ */
+export function setPrefix(prefixName) {
   prefix = prefixName;
 };
 
-export const syncable = (name, value, hydrate = true) => {
+/**
+ * @template T
+ * @param {string} name
+ * @param {T} value
+ * @param {boolean} [hydrate]
+ * @returns {import('svelte/store').Writable<T>}
+ */
+export function syncable(name, value, hydrate = true) {
+  if (typeof window == "undefined" || typeof localStorage == "undefined") {
+    return writable(value);
+  }
   const key = `${prefix}-${name}`;
   let lastValue = value;
 
   if (hydrate) {
-    lastValue = get(key) || value;
+    lastValue = get(localStorage, key) || value;
   }
 
-  return syncValue(key, writable(lastValue));
-};
+  return syncValue(localStorage, key, writable(lastValue));
+}
+
+/**
+ * @template T
+ * @param {string} name
+ * @param {T} value
+ * @param {boolean} [hydrate]
+ * @returns {import('svelte/store').Writable<T>}
+ */
+export function sessionSyncable(name, value, hydrate = true) {
+  if (typeof window == "undefined" || typeof sessionStorage == "undefined") {
+    return writable(value);
+  }
+  const key = `${prefix}-${name}`;
+  let lastValue = value;
+
+  if (hydrate) {
+    lastValue = get(sessionStorage, key) || value;
+  }
+
+  return syncValue(sessionStorage, key, writable(lastValue));
+}
